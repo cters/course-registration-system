@@ -22,9 +22,9 @@ func InitRouter() *gin.Engine {
 
 	userRouter := routers.RouterGroupApp.User
 
-	MainGroup := r.Group("/v1/api")
+	MainGroup := r.Group("/api/v1")
 	{
-		MainGroup.GET("/checkstatus")	
+		MainGroup.GET("/checkstatus")
 	}
 	{
 		userRouter.InitUserRouter(MainGroup)
