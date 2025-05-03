@@ -1,0 +1,8 @@
+.env
+.env.example
+tmp
+data
+**/logs
+sql
+config
+Dockerfile
