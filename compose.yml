@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    hostname: postgresql
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: hcmut
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/postgres_data:/var/lib/postgres/data
+      - ./postgres/init:/docker-entrypoint-initdb.d/
+    networks:
+      - local-networks
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d hcmut"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  goose_up:
+    build:
+      context: ./backend/sql
+      dockerfile: Dockerfile.migrate
+    container_name: goose_up_container
+    command: ["goose", "postgres", "postgres://root:root123@postgresql:5432/hcmut?sslmode=disable","up"]
+    networks:
+      - local-networks
+    depends_on:
+      postgres:
+        condition: service_healthy
+      
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis_data:/data
+    networks:
+      - local-networks
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_container
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - local-networks
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+  login-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crs_login
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./backend/config:/app/config
+    networks:
+      - local-networks
+
+networks:
+  local-networks:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
