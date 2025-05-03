@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: webapp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loginservice-config
+  namespace: webapp
+data:
+  production.yaml: |-
+    server:
+      port: 8000
+      mode: production
+
+    postgresql:
+      host: postgresql.database.svc.cluster.local
+      port: 5432
+      username: root
+      dbname: hcmut
+      sslmode: disable
+
+    logger:
+      log_level: debug
+      file_log_name: ./storages/logs/dev.log
+      max_backups: 30
+      max_age: 7
+      max_size: 1024
+      compress: true
+
+    redis:
+      host: redis-master.database.svc.cluster.local
+      port: 6379
+      database: 0
+
+    rabbitmq:
+      host: rabbitmq
+      port: 5672
+      user: guest
+
+    jwt:
+      TOKEN_HOUR_LIFESPAN: 1
+      JWT_EXPIRATION: 1h
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loginservice
+  namespace: webapp
+  labels:
+    app: loginservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loginservice
+  template:
+    metadata:
+      labels:
+        app: loginservice
+    spec:
+      containers:
+        - name: loginservice
+          image: kng1259/crs-loginservice:0.0.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODE
+              value: "production"
+          envFrom:
+            - secretRef:
+                name: loginservice-secrets
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+              readOnly: true
+            - name: secrets-volume
+              mountPath: /app/secrets
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: loginservice-config
+            items:
+        - name: secrets-volume
+          secret:
+            secretName: loginservice-secrets
+            items:
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loginservice
+  namespace: webapp
+spec:
+  selector:
+    app: loginservice
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: login-ingress
+  namespace: webapp
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+
+spec:
+  rules:
+    - host: kng.k8s.dev.local
+      http:
+        paths:
+          - path: /api/v1/user
+            pathType: Prefix
+            backend:
+              service:
+                name: loginservice
+                port:
+                  number: 8000
