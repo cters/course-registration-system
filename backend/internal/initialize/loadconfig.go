@@ -11,7 +11,7 @@ import (
 func Loadconfig() {
 	viper := viper.New()
 	viper.AddConfigPath("./config")
-	viper.SetConfigName("local")
+	viper.SetConfigName("development")
 	viper.SetConfigType("yaml")
 
 	err := viper.ReadInConfig()
