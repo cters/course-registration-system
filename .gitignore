@@ -2,4 +2,5 @@
 tmp
 data
 **/logs
-config/production.yaml
+backend/config/development.yaml
+backend/config/production.yaml
