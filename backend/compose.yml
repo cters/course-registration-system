@@ -44,19 +44,3 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - local-networks
-    
-  login-service:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: crs_login
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    volumes:
-      - ./backend/config:/app/config
-    networks:
-      - local-networks
