@@ -6,3 +6,4 @@ backend/config/development.yaml
 backend/config/production.yaml
 backend/config/staging.yaml
 secrets
+**.tgz

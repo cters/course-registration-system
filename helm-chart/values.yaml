@@ -1,0 +1,24 @@
+loginservice:
+  secrets:
+    jwt:
+      secretKey: pip
+redis:
+  master:
+    persistence:
+      enabled: true
+      size: 4Gi
+  replica:
+    persistence:
+      enabled: true
+      size: 4Gi
+    replicaCount: 2
+  metrics:
+    enabled: true
+global:
+  postgresql:
+    auth:
+      database: loginservice
+      username: admin
+      password: lol
+  redis:
+    password: lol
