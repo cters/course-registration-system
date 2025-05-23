@@ -20,7 +20,7 @@ func GenTokenJWT(payload jwt.Claims) (string, error) {
 func CreateToken(uuidToken string) (string, error) {
 	timeEx := global.Config.JWT.JWT_EXPIRATION
 	if timeEx == "" {
-		timeEx = "1h"
+		timeEx = "1d"
 	}
 	expiration, err := time.ParseDuration(timeEx)
 	if err != nil {
