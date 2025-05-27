@@ -18,13 +18,36 @@ func InitRouter() *gin.Engine {
 		r = gin.New()
 	}
 
+	// middlewares
+	r.Use(middlewares.LoggerMiddleware())
+	r.Use(middlewares.CorsMiddleware([]string{"*"}))
 	r.Use(middlewares.ValidatorMiddleware())
+	// r.Use(middlewares.NewRateLimiter().GlobalRateLimiter()) // 100 request / s
+	// r.GET("/ping/100", func(ctx *gin.Context) {
+	// 	ctx.JSON(200, gin.H{
+	// 		"message": "pong 100",
+	// 	})
+	// })
+
+	// r.Use(middlewares.NewRateLimiter().PublicAPIRateLimiter())
+	// r.GET("/ping/80", func(ctx *gin.Context) {
+	// 	ctx.JSON(200, gin.H{
+	// 		"message": "pong 80",
+	// 	})
+	// })
+
+	// r.Use(middlewares.NewRateLimiter().PrivateAPIRateLimiter())
+	// r.GET("/ping/60", func(ctx *gin.Context) {
+	// 	ctx.JSON(200, gin.H{
+	// 		"message": "pong 60",
+	// 	})
+	// })
 
 	userRouter := routers.RouterGroupApp.User
 
 	MainGroup := r.Group("/api/v1")
 	{
-		MainGroup.GET("/checkstatus")
+		MainGroup.GET("/checkstatus", func(c* gin.Context){c.JSON(200,gin.H{"message":"ok"})})
 	}
 	{
 		userRouter.InitUserRouter(MainGroup)
