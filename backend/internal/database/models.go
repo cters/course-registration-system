@@ -9,12 +9,14 @@ import (
 )
 
 type GoUser struct {
-	ID        int32
-	Email     string
-	Phone     string
-	Username  string
-	Password  string
-	Salt      string
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
+	UserID        int32
+	UserAccount   string
+	UserPassword  string
+	UserEmail     string
+	UserName      string
+	UserPhone     string
+	UserCredit    int16
+	UserSalt      string
+	UserCreatedAt sql.NullTime
+	UserUpdatedAt sql.NullTime
 }

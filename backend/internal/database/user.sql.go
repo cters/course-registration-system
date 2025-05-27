@@ -12,62 +12,64 @@ import (
 
 const addUser = `-- name: AddUser :execresult
 INSERT INTO go_user (
-    email, phone, salt, username, password, created_at, updated_at
+    user_account, user_email, user_phone, user_salt, user_name, user_password, user_created_at, user_updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, NOW(), NOW()
+    $1, $2, $3, $4, $5, $6, NOW(), NOW()
 )
 `
 
 type AddUserParams struct {
-	Email    string
-	Phone    string
-	Salt     string
-	Username string
-	Password string
+	UserAccount  string
+	UserEmail    string
+	UserPhone    string
+	UserSalt     string
+	UserName     string
+	UserPassword string
 }
 
 func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, addUser,
-		arg.Email,
-		arg.Phone,
-		arg.Salt,
-		arg.Username,
-		arg.Password,
+		arg.UserAccount,
+		arg.UserEmail,
+		arg.UserPhone,
+		arg.UserSalt,
+		arg.UserName,
+		arg.UserPassword,
 	)
 }
 
 const checkUserExist = `-- name: CheckUserExist :one
-SELECT COUNT(*) FROM go_user WHERE email = $1
+SELECT COUNT(*) FROM go_user WHERE user_email = $1
 `
 
-func (q *Queries) CheckUserExist(ctx context.Context, email string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, checkUserExist, email)
+func (q *Queries) CheckUserExist(ctx context.Context, userEmail string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkUserExist, userEmail)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, password, salt FROM go_user WHERE email = $1 LIMIT 1
+SELECT user_id, user_email, user_name, user_password, user_salt FROM go_user WHERE user_email = $1 LIMIT 1
 `
 
 type GetUserByEmailRow struct {
-	ID       int32
-	Email    string
-	Username string
-	Password string
-	Salt     string
+	UserID       int32
+	UserEmail    string
+	UserName     string
+	UserPassword string
+	UserSalt     string
 }
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
-	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+func (q *Queries) GetUserByEmail(ctx context.Context, userEmail string) (GetUserByEmailRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, userEmail)
 	var i GetUserByEmailRow
 	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.Username,
-		&i.Password,
-		&i.Salt,
+		&i.UserID,
+		&i.UserEmail,
+		&i.UserName,
+		&i.UserPassword,
+		&i.UserSalt,
 	)
 	return i, err
 }
