@@ -11,10 +11,10 @@ func (pr *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 	userRouterPublic := Router.Group("/user")
 	{
 		userRouterPublic.POST("/login", user.UserLoginController.Login)
-		userRouterPublic.POST("/register", user.UserAdminController.Register)
 	}
 	userRouterPrivate := Router.Group("/user")
 	userRouterPrivate.Use(middlewares.AuthenMiddleware())
 	{
+		userRouterPublic.POST("/register", user.UserAdminController.Register)
 	}
 }
