@@ -1,14 +1,16 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS go_user (
-    id SERIAL PRIMARY KEY, 
-    email VARCHAR(255) NOT NULL DEFAULT '' UNIQUE, 
-    phone VARCHAR(255) NOT NULL DEFAULT '' UNIQUE, 
-    username VARCHAR(255) NOT NULL DEFAULT '', 
-    password VARCHAR(255) NOT NULL DEFAULT '', 
-    salt VARCHAR(255) NOT NULL DEFAULT '',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id SERIAL PRIMARY KEY, 
+    user_account VARCHAR(255) NOT NULL DEFAULT '' UNIQUE,
+    user_password VARCHAR(255) NOT NULL DEFAULT '', 
+    user_email VARCHAR(255) NOT NULL DEFAULT '' UNIQUE, 
+    user_name VARCHAR(255) NOT NULL DEFAULT '', 
+    user_phone VARCHAR(255) NOT NULL DEFAULT '' UNIQUE, 
+    user_credit SMALLINT NOT NULL DEFAULT 0,
+    user_salt VARCHAR(255) NOT NULL DEFAULT '',
+    user_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    user_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- +goose StatementEnd
 
