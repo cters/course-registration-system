@@ -34,12 +34,12 @@ func (s *sUserLogin) Login(ctx context.Context, in *model.LoginInput) (codeResul
 	}
 
 	// Check Password
-	if !crypto.MatchingPassword(userFound.Password, in.Password, userFound.Salt) {
+	if !crypto.MatchingPassword(userFound.UserPassword, in.Password, userFound.UserSalt) {
 		return response.ErrCodeAuthFailed, out, fmt.Errorf("does not match password")
 	}
 
 	// Create UUID User
-	subToken := utils.GenerateTokenUUID(int(userFound.ID))
+	subToken := utils.GenerateTokenUUID(int(userFound.UserID))
 	log.Println("subtoken:::", subToken)
 
 	// Convert User Info to Json

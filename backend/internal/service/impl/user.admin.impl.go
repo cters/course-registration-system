@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/QuanCters/backend/internal/database"
 	"github.com/QuanCters/backend/internal/model"
@@ -38,12 +39,15 @@ func (s *sUserAdmin) Register(ctx context.Context, in *model.RegisterInput) (cod
 
 	hashedPassword := crypto.HashPassword(in.Password, salt)
 
+	account := strings.Split(in.Email, "@")[0]
+
 	params := database.AddUserParams{
-		Email:    in.Email,
-		Password: hashedPassword,
-		Salt:     salt,
-		Username: in.Username,
-		Phone:    in.Phone,
+		UserAccount:  account,
+		UserEmail:    in.Email,
+		UserPassword: hashedPassword,
+		UserSalt:     salt,
+		UserName: 	  in.Name,
+		UserPhone:    in.Phone,
 	}
 
 	_, err = s.r.AddUser(ctx, params)
