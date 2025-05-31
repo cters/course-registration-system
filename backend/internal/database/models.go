@@ -6,7 +6,76 @@ package database
 
 import (
 	"database/sql"
+	"time"
 )
+
+type GoCourse struct {
+	CourseID          int64
+	SubjectID         string
+	CourseTerm        string
+	CourseMaxSlot     int16
+	CourseCurrentSlot int16
+	CourseCreatedAt   sql.NullTime
+	CourseUpdatedAt   sql.NullTime
+}
+
+type GoInstructor struct {
+	InstructorID           int64
+	InstructorDepartmentID int16
+	InstructorHireDate     time.Time
+	InstructorTitle        string
+	UserID                 int64
+}
+
+type GoOperator struct {
+	OperatorID       int64
+	OperatorHireDate time.Time
+	OperatorUnitName string
+	UserID           int64
+}
+
+type GoPermission struct {
+	PermissionID        int32
+	PermissionName      sql.NullString
+	PermissionCreatedAt sql.NullTime
+	PermissionUpdatedAt sql.NullTime
+}
+
+type GoRole struct {
+	RoleID        int32
+	RoleName      sql.NullString
+	RoleCreatedAt sql.NullTime
+	RoleUpdatedAt sql.NullTime
+}
+
+type GoRolePermission struct {
+	RoleID                  int32
+	PermissionID            int32
+	RolePermissionCreatedAt sql.NullTime
+	RolePermissionUpdatedAt sql.NullTime
+}
+
+type GoStudent struct {
+	StudentID             int64
+	StudentCredit         int16
+	StudentEnrollmentYear int16
+	StudentGpa            string
+	StudentDepartmentID   int16
+	UserID                int64
+}
+
+type GoSubject struct {
+	SubjectID     string
+	SubjectTitle  string
+	SubjectCredit int16
+	SubjectNote   sql.NullString
+}
+
+type GoSubjectRequirement struct {
+	SubjectID       string
+	RequirementID   string
+	RequirementType sql.NullString
+}
 
 type GoUser struct {
 	UserID        int32
@@ -19,4 +88,11 @@ type GoUser struct {
 	UserSalt      string
 	UserCreatedAt sql.NullTime
 	UserUpdatedAt sql.NullTime
+}
+
+type GoUserRole struct {
+	UserID            int32
+	RoleID            int32
+	UserRoleCreatedAt sql.NullTime
+	UserRoleUpdatedAt sql.NullTime
 }
