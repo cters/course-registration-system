@@ -11,6 +11,9 @@ const (
 	ErrCodeInternal      = 500
 	ErrCodeUserHasExists = 501 // user has already registered
 
+	ErrCodeSubjectNotFound = 600
+
+	ErrCodeCourseNotFound = 700
 )
 
 // message
