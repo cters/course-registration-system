@@ -1,0 +1,14 @@
+-- +goose Up
+-- +goose StatementBegin
+-- CREATE TABLE
+--     IF NOT EXISTS go_class (
+--         class_id VARCHAR(255) PRIMARY KEY,
+--         course_id VARCHAR(255) NOT NULL,
+--         class_semester VARCHAR(255) NOT NULL,
+--         class_instructor CONSTRAINT fk_go_class_go_course FOREIGN KEY (course_id) REFERENCES go_course (course_id) ON DELETE CASCADE
+--     );
+-- +goose StatementEnd
+-- +goose Down
+-- +goose StatementBegin
+-- DROP TABLE IF EXISTS go_class;
+-- +goose StatementEnd
