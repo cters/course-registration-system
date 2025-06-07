@@ -60,3 +60,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define service hostname
+*/}}
+{{- define "helm-chart.servicehostname" -}}
+{{- printf "%s.svc.cluster.local" ( .Release.Namespace ) }}
+{{- end }}

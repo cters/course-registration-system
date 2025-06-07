@@ -1,7 +1,7 @@
 loginservice:
   secrets:
     jwt:
-      secretKey: pip
+      secretKey: lol
 redis:
   master:
     persistence:
@@ -21,4 +21,8 @@ global:
       username: admin
       password: lol
   redis:
+    password: lol
+  # this doesn't work with the rabbitmq-cluster-operator chart
+  rabbitmq:
+    name: admin
     password: lol

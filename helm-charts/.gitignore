@@ -1,0 +1,32 @@
+# Helm dependency charts
+charts/
+
+# Helm chart lock file
+Chart.lock
+
+# Helm packaging files
+*.tgz
+
+# Helm template output
+templates/tests/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Logs
+*.log

@@ -1,7 +1,24 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: {{ .Release.Namespace }}-rabbitmq-cluster
+spec:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 800m
+      memory: 1Gi
+  persistence:
+    storage: 2Gi
+
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: loginservice-config
+  name: {{ .Release.Namespace }}-loginservice-config
 data:
   production.yaml: |-
     server:
@@ -9,7 +26,7 @@ data:
       mode: production
 
     postgresql:
-      host: login-postgresql.login.svc.cluster.local
+      host: {{ .Release.Namespace }}-postgresql.{{ include "helm-chart.servicehostname" .}}
       port: 5432
       dbname: {{ .Values.global.postgresql.auth.database }}
       sslmode: disable
@@ -23,12 +40,12 @@ data:
       compress: true
 
     redis:
-      host: login-redis-master.login.svc.cluster.local
+      host: {{ .Release.Namespace }}-redis-master.{{ include "helm-chart.servicehostname" .}}
       port: 6379
       database: 0
 
     rabbitmq:
-      host: rabbitmq.rabbitmq-system.svc.cluster.local
+      host: {{ .Release.Namespace }}-rabbitmq-cluster.{{ include "helm-chart.servicehostname" .}}
       port: 5672
 
     jwt:
@@ -39,24 +56,26 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: loginservice-secrets
+  name: {{ .Release.Namespace }}-loginservice-secrets
 type: Opaque
-stringData:
+stringData: 
   production.yaml: |-
     jwt.secretKey: {{ .Values.loginservice.secrets.jwt.secretKey }}
     postgresql.username: {{ .Values.global.postgresql.auth.username }}
     postgresql.password: {{ .Values.global.postgresql.auth.password }}
     redis.password: {{ .Values.global.redis.password }}
+    rabbitmq.user: {{ .Values.global.rabbitmq.name }}
+    rabbitmq.password: {{ .Values.global.rabbitmq.password }} 
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loginservice
+  name: {{ .Release.Namespace }}-loginservice
   labels:
     app: loginservice
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: loginservice
@@ -76,7 +95,7 @@ spec:
               value: "production"
           envFrom:
             - secretRef:
-                name: loginservice-secrets
+                name: {{ .Release.Namespace }}-loginservice-secrets
           volumeMounts:
             - name: config-volume
               mountPath: /app/config
@@ -87,18 +106,18 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: loginservice-config
+            name: {{ .Release.Namespace }}-loginservice-config
             items:
         - name: secrets-volume
           secret:
-            secretName: loginservice-secrets
+            secretName: {{ .Release.Namespace }}-loginservice-secrets
             items:
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: loginservice
+  name: {{ .Release.Namespace }}-loginservice
 spec:
   selector:
     app: loginservice
@@ -112,7 +131,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: login-ingress
+  name: {{ .Release.Namespace }}-login-ingress
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 
@@ -126,6 +145,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: loginservice
+                name: {{ .Release.Namespace }}-loginservice
                 port:
                   number: 8000
