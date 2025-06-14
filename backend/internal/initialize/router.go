@@ -21,7 +21,6 @@ func InitRouter() *gin.Engine {
 	// middlewares
 	r.Use(middlewares.LoggerMiddleware())
 	r.Use(middlewares.CorsMiddleware([]string{"*"}))
-	r.Use(middlewares.ValidatorMiddleware())
 	// r.Use(middlewares.NewRateLimiter().GlobalRateLimiter()) // 100 request / s
 	// r.GET("/ping/100", func(ctx *gin.Context) {
 	// 	ctx.JSON(200, gin.H{
@@ -42,6 +41,23 @@ func InitRouter() *gin.Engine {
 	// 		"message": "pong 60",
 	// 	})
 	// })
+
+	// r.POST("/message", func(ctx *gin.Context) {
+	// 	msg := "error_dlx" 
+	// 	msgBody, err := json.Marshal(msg)
+	// 	if err != nil {
+	// 		global.Logger.Error("Failed to marshal message for RabbitMQ",
+	// 			zap.Error(err),
+	// 		)	
+	// 		return 
+	// 	}
+	// 	err = u.PublishMessage(exchangeName, queueName, msgBody)	
+	// 	if err != nil {
+	// 		return  
+	// 	}
+	// 	ctx.JSON(200, gin.H{"status":"message published"})
+	// })
+	
 
 	userRouter := routers.RouterGroupApp.User
 
