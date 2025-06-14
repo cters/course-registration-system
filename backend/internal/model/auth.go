@@ -5,6 +5,7 @@ type RegisterInput struct {
 	Password string `json:"password"`
 	Name     string `json:"name"`
 	Phone    string `json:"phone"`
+	Role     string `json:"role"`
 }
 
 type RegisterOutput struct {
@@ -23,11 +24,14 @@ type LoginOutput struct {
 	Message string `json:"message"`
 }
 
-type LogoutInput struct {
-	Token string `json:"token"`
-	ID    string `json:"user_id"`
-}
-
 type LogoutOutput struct {
 	Message string `json:"message"`
+}
+
+type UserOutput struct {
+	UserID      int32  `json:"user_id"`
+	UserAccount string `json:"user_account"`
+	UserEmail   string `json:"user_email"`
+	UserName    string `json:"user_name"`
+	UserPhone   string `json:"user_phone"`
 }
