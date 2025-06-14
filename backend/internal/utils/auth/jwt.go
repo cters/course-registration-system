@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/QuanCters/backend/global"
@@ -10,6 +12,8 @@ import (
 
 type PayloadClaims struct {
 	jwt.RegisteredClaims
+	Username string `json:"username"`
+	UserID int32 `json:"user_id"`
 }
 
 func GenTokenJWT(payload jwt.Claims) (string, error) {
@@ -17,17 +21,20 @@ func GenTokenJWT(payload jwt.Claims) (string, error) {
 	return token.SignedString([]byte(global.Config.JWT.API_SECRET_KEY))
 }
 
-func CreateToken(uuidToken string) (string, error) {
+func CreateToken(uuidToken, username string, userID int32) (string, error) {
 	timeEx := global.Config.JWT.JWT_EXPIRATION
 	if timeEx == "" {
 		timeEx = "1d"
 	}
+
 	expiration, err := time.ParseDuration(timeEx)
 	if err != nil {
 		return "", err
 	}
+
 	now := time.Now()
 	expiresAt := now.Add(expiration)
+
 	return GenTokenJWT(&PayloadClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID: uuid.New().String(),
@@ -36,28 +43,25 @@ func CreateToken(uuidToken string) (string, error) {
 			Issuer: "cters",
 			Subject: uuidToken,
 		},
+		Username: username,
+		UserID: userID,
 	})
 }
 
-func ParseJwtTokenSubject(token string) (*jwt.RegisteredClaims, error) {
+func ParseJwtTokenSubject(token string) (*PayloadClaims, error) {
 	tokenClaims, err := jwt.ParseWithClaims(token, &PayloadClaims{}, func(jwtToken *jwt.Token) (interface{}, error){
 		return []byte(global.Config.JWT.API_SECRET_KEY), nil
 	}) 
 
-	if tokenClaims != nil {
-		if claims, ok := tokenClaims.Claims.(*PayloadClaims); ok && tokenClaims.Valid{
-			return &claims.RegisteredClaims, nil
-		}
-	}
-
-	return nil, err
-}
-
-func VerifyTokenSubject(token string) (*jwt.RegisteredClaims, error) {
-	claims, err := ParseJwtTokenSubject(token)
+	// Handle parsing error first
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("token parsing failed: %w", err)
 	}
 
-	return claims, nil
+	// Validate token and claims
+	if claims, ok := tokenClaims.Claims.(*PayloadClaims); ok && tokenClaims.Valid{
+		return claims, nil
+	}
+
+	return nil, errors.New("Invalid Token")
 }
