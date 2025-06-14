@@ -4,6 +4,11 @@ SELECT course_id, subject_id, course_term, course_max_slot, course_current_slot 
 -- name: GetCourseBySubjectIdAndTerm :one
 SELECT course_id, subject_id, course_term, course_max_slot, course_current_slot FROM go_course WHERE subject_id = $1 AND course_term = $2;
 
+-- name: ListCoursesByTerm :many
+SELECT * FROM go_course 
+WHERE course_term = $1
+ORDER BY subject_id;
+
 -- name: UpdateCourseById :execresult
 UPDATE go_course
 SET 
