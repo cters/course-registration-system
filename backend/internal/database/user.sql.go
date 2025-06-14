@@ -7,15 +7,14 @@ package database
 
 import (
 	"context"
-	"database/sql"
 )
 
-const addUser = `-- name: AddUser :execresult
+const addUser = `-- name: AddUser :one
 INSERT INTO go_user (
     user_account, user_email, user_phone, user_salt, user_name, user_password, user_created_at, user_updated_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6, NOW(), NOW()
-)
+) RETURNING user_id
 `
 
 type AddUserParams struct {
@@ -27,8 +26,8 @@ type AddUserParams struct {
 	UserPassword string
 }
 
-func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, addUser,
+func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, addUser,
 		arg.UserAccount,
 		arg.UserEmail,
 		arg.UserPhone,
@@ -36,6 +35,20 @@ func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (sql.Result, e
 		arg.UserName,
 		arg.UserPassword,
 	)
+	var user_id int32
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
+const checkStudentExist = `-- name: CheckStudentExist :one
+SELECT COUNT(*) FROM go_student WHERE student_id = $1
+`
+
+func (q *Queries) CheckStudentExist(ctx context.Context, studentID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkStudentExist, studentID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const checkUserExist = `-- name: CheckUserExist :one
@@ -50,15 +63,17 @@ func (q *Queries) CheckUserExist(ctx context.Context, userEmail string) (int64, 
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT user_id, user_email, user_name, user_password, user_salt FROM go_user WHERE user_email = $1 LIMIT 1
+SELECT user_id, user_password, user_account, user_email, user_name, user_salt, user_phone FROM go_user WHERE user_email = $1 LIMIT 1
 `
 
 type GetUserByEmailRow struct {
 	UserID       int32
+	UserPassword string
+	UserAccount  string
 	UserEmail    string
 	UserName     string
-	UserPassword string
 	UserSalt     string
+	UserPhone    string
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, userEmail string) (GetUserByEmailRow, error) {
@@ -66,10 +81,37 @@ func (q *Queries) GetUserByEmail(ctx context.Context, userEmail string) (GetUser
 	var i GetUserByEmailRow
 	err := row.Scan(
 		&i.UserID,
+		&i.UserPassword,
+		&i.UserAccount,
 		&i.UserEmail,
 		&i.UserName,
-		&i.UserPassword,
 		&i.UserSalt,
+		&i.UserPhone,
+	)
+	return i, err
+}
+
+const getUserById = `-- name: GetUserById :one
+SELECT user_id, user_account, user_email, user_name, user_phone FROM go_user WHERE user_id = $1 LIMIT 1
+`
+
+type GetUserByIdRow struct {
+	UserID      int32
+	UserAccount string
+	UserEmail   string
+	UserName    string
+	UserPhone   string
+}
+
+func (q *Queries) GetUserById(ctx context.Context, userID int32) (GetUserByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserById, userID)
+	var i GetUserByIdRow
+	err := row.Scan(
+		&i.UserID,
+		&i.UserAccount,
+		&i.UserEmail,
+		&i.UserName,
+		&i.UserPhone,
 	)
 	return i, err
 }

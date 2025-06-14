@@ -28,7 +28,7 @@ const checkCourseExist = `-- name: CheckCourseExist :one
 SELECT COUNT(*) FROM go_course WHERE course_id = $1
 `
 
-func (q *Queries) CheckCourseExist(ctx context.Context, courseID int64) (int64, error) {
+func (q *Queries) CheckCourseExist(ctx context.Context, courseID int32) (int64, error) {
 	row := q.db.QueryRowContext(ctx, checkCourseExist, courseID)
 	var count int64
 	err := row.Scan(&count)
@@ -39,7 +39,7 @@ const deleteCourseById = `-- name: DeleteCourseById :execresult
 DELETE FROM go_course WHERE course_id = $1
 `
 
-func (q *Queries) DeleteCourseById(ctx context.Context, courseID int64) (sql.Result, error) {
+func (q *Queries) DeleteCourseById(ctx context.Context, courseID int32) (sql.Result, error) {
 	return q.db.ExecContext(ctx, deleteCourseById, courseID)
 }
 
@@ -48,14 +48,14 @@ SELECT course_id, subject_id, course_term, course_max_slot, course_current_slot 
 `
 
 type GetCourseByIdRow struct {
-	CourseID          int64
+	CourseID          int32
 	SubjectID         string
 	CourseTerm        string
 	CourseMaxSlot     int16
 	CourseCurrentSlot int16
 }
 
-func (q *Queries) GetCourseById(ctx context.Context, courseID int64) (GetCourseByIdRow, error) {
+func (q *Queries) GetCourseById(ctx context.Context, courseID int32) (GetCourseByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getCourseById, courseID)
 	var i GetCourseByIdRow
 	err := row.Scan(
@@ -78,7 +78,7 @@ type GetCourseBySubjectIdAndTermParams struct {
 }
 
 type GetCourseBySubjectIdAndTermRow struct {
-	CourseID          int64
+	CourseID          int32
 	SubjectID         string
 	CourseTerm        string
 	CourseMaxSlot     int16
@@ -98,6 +98,43 @@ func (q *Queries) GetCourseBySubjectIdAndTerm(ctx context.Context, arg GetCourse
 	return i, err
 }
 
+const listCoursesByTerm = `-- name: ListCoursesByTerm :many
+SELECT course_id, subject_id, course_term, course_max_slot, course_current_slot, course_created_at, course_updated_at FROM go_course 
+WHERE course_term = $1
+ORDER BY subject_id
+`
+
+func (q *Queries) ListCoursesByTerm(ctx context.Context, courseTerm string) ([]GoCourse, error) {
+	rows, err := q.db.QueryContext(ctx, listCoursesByTerm, courseTerm)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GoCourse
+	for rows.Next() {
+		var i GoCourse
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.SubjectID,
+			&i.CourseTerm,
+			&i.CourseMaxSlot,
+			&i.CourseCurrentSlot,
+			&i.CourseCreatedAt,
+			&i.CourseUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCourseById = `-- name: UpdateCourseById :execresult
 UPDATE go_course
 SET 
@@ -114,7 +151,7 @@ type UpdateCourseByIdParams struct {
 	CourseTerm        string
 	CourseMaxSlot     int16
 	CourseCurrentSlot int16
-	CourseID          int64
+	CourseID          int32
 }
 
 func (q *Queries) UpdateCourseById(ctx context.Context, arg UpdateCourseByIdParams) (sql.Result, error) {

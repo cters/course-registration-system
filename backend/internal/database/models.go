@@ -10,7 +10,7 @@ import (
 )
 
 type GoCourse struct {
-	CourseID          int64
+	CourseID          int32
 	SubjectID         string
 	CourseTerm        string
 	CourseMaxSlot     int16
@@ -39,6 +39,14 @@ type GoPermission struct {
 	PermissionName      sql.NullString
 	PermissionCreatedAt sql.NullTime
 	PermissionUpdatedAt sql.NullTime
+}
+
+type GoRegistration struct {
+	RegistrationID     int64
+	StudentID          int64
+	CourseID           int32
+	RegistrationStatus string
+	RegistrationDate   sql.NullTime
 }
 
 type GoRole struct {
@@ -84,7 +92,6 @@ type GoUser struct {
 	UserEmail     string
 	UserName      string
 	UserPhone     string
-	UserCredit    int16
 	UserSalt      string
 	UserCreatedAt sql.NullTime
 	UserUpdatedAt sql.NullTime
