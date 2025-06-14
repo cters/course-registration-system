@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"runtime/debug"
-	"sync"
 	"time"
 
 	"github.com/QuanCters/backend/global"
@@ -16,7 +15,7 @@ import (
 var (
 	redisRetryCount = 0
 	maxRetries= 3
-	redisMutex sync.Mutex // avoid race condition
+	// redisMutex sync.Mutex // avoid race condition
 )
 
 func InitRedis(ctx context.Context) {
