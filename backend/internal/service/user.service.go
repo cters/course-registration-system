@@ -9,11 +9,11 @@ import (
 type (
 	IUserLogin interface {
 		Login(ctx context.Context, in *model.LoginInput) (codeResult int, out model.LoginOutput, err error) 
-		Logout(ctx context.Context, in *model.LogoutInput) (codeResult int, out model.LogoutOutput, err error)
+		Logout(ctx context.Context) (codeResult int, out model.LogoutOutput, err error)
 	}
 	
 	IUserInfo interface {
-		GetInfoByUserId(ctx context.Context) error
+		GetMyInfo(ctx context.Context) (codeResult int, out model.UserOutput, err error) 
 	}
 	
 	IUserAdmin interface {
