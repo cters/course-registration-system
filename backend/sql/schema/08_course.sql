@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE
     IF NOT EXISTS go_course (
-        course_id BIGINT PRIMARY KEY,
+        course_id SERIAL PRIMARY KEY,
         subject_id VARCHAR(255) NOT NULL,
         course_term VARCHAR(255) NOT NULL,
         course_max_slot SMALLINT NOT NULL DEFAULT 2000,
