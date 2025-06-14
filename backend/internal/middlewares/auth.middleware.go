@@ -2,29 +2,47 @@ package middlewares
 
 import (
 	"context"
-	"log"
+	"net/http"
 
 	"github.com/QuanCters/backend/internal/utils/auth"
+	"github.com/QuanCters/backend/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
+type contextKey string
+const (
+	SubjectUUIDKey contextKey = "subjectUUID"
+	Username contextKey = "username"
+	UserID contextKey = "user_id"
+)
+
+
 func AuthenMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		uri := c.Request.URL.Path
-		log.Println("uri request: ", uri)
-		jwtToken, valid := auth.ExtractBearerToken(c)
-		if !valid {
-			c.AbortWithStatusJSON(401, gin.H{"code": 401, "err": "Unauthorized", "description": ""})
+		jwtToken, valid := auth.GetTokenFromCookie(c)
+		if valid != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": response.ErrCodeAuthFailed,
+				"message": "Authentication required",
+			})
+			c.Abort()
 			return
 		}
 
-		claims, err := auth.VerifyTokenSubject(jwtToken)
+		claims, err := auth.ParseJwtTokenSubject(jwtToken)
 		if err != nil {
-			c.AbortWithStatusJSON(401, gin.H{"code": 401, "err": "Invalid Token", "description": ""})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code":    response.ErrCodeAuthFailed,
+				"message": "Invalid token: " + err.Error(),
+			})
+			c.Abort()
+			return
 		}
 
-		log.Println("claims::: UUID::", claims.Subject)
-		ctx := context.WithValue(c.Request.Context(), "subjectUUID", claims.Subject)
+		ctx := context.WithValue(c.Request.Context(), SubjectUUIDKey, claims.RegisteredClaims.Subject)
+		ctx = context.WithValue(ctx, Username, claims.Username)
+		ctx = context.WithValue(ctx, UserID, claims.UserID)
+
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
