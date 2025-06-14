@@ -9,13 +9,13 @@ import (
 type (
 	ICourseAdmin interface {
 		CreateCourse(ctx context.Context, in *model.CourseInput) (codeResult int,  err error)
-		UpdateCourse(ctx context.Context, in *model.CourseInput) (codeResult int, err error)
-		DeleteCourse(ctx context.Context, courseId int) (codeResult int, err error)
+		UpdateCourse(ctx context.Context, in *model.Course) (codeResult int, err error)
+		DeleteCourse(ctx context.Context, courseID int) (codeResult int, err error)
 	}
 
 	ICourseInfo interface {
-		GetCourseById(ctx context.Context, courseId int) (codeResult int, out *model.Course, err error)
-		GetCourseBySubjectIdAndTerm(ctx context.Context, subjectId int, term string) (codeResult int, out *model.Course, err error)
+		GetCourseById(ctx context.Context, courseID int) (codeResult int, out *model.Course, err error)
+		GetCourseBySubjectIdAndTerm(ctx context.Context, subjectID string, term string) (codeResult int, out *model.Course, err error)
 	}
 	
 	ICourseRegistration interface {
