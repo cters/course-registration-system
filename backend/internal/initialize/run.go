@@ -12,9 +12,10 @@ func Run() *gin.Engine {
 	Loadconfig()
 	InitLogger()
 	InitPostgresql()
-	InitServiceInterface()
 	InitRedis(ctx)
 	InitRabbitMQ(ctx)
+	InitServiceInterface()
+	InitConsumer()
 	r := InitRouter()
 	return r
 }
