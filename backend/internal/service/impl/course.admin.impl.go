@@ -61,12 +61,12 @@ func (s *sCourseAdmin) UpdateCourse(ctx context.Context, in *model.Course) (code
 }
 
 func (s *sCourseAdmin) DeleteCourse(ctx context.Context, courseId int) (codeResult int, err error){
-	courseFound, err := s.r.CheckCourseExist(ctx, int64(courseId));
+	courseFound, err := s.r.CheckCourseExist(ctx, int32(courseId));
 	if err != nil || courseFound == 0 {
 		return response.ErrCodeCourseNotFound, err
 	}
 
-	_, err = s.r.DeleteCourseById(ctx, int64(courseId))	
+	_, err = s.r.DeleteCourseById(ctx, int32(courseId))	
 	if err != nil {
 		return response.ErrCodeInternal, fmt.Errorf("failed to delete course: %w", err)
 	}

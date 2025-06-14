@@ -18,8 +18,8 @@ func  CourseInfoImpl(r *database.Queries) *sCourseInfo {
 	}
 }
 
-func (s *sCourseInfo) GetCourseById(ctx context.Context, courseId int) (codeResult int, out *model.Course, err error){
-	course, err := s.r.GetCourseById(ctx, int64(courseId))
+func (s *sCourseInfo) GetCourseById(ctx context.Context, courseID int) (codeResult int, out *model.Course, err error){
+	course, err := s.r.GetCourseById(ctx, int32(courseID))
 	if err != nil {
 		return response.ErrCodeCourseNotFound, nil, err
 	}
