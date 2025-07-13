@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema: "./internal/auth/infrastructure/persistence/schema"
+    queries: "./internal/auth/infrastructure/persistence/queries"
+    gen:
+      go:
+        package: "sqlc"
+        out: "./internal/auth/infrastructure/persistence/sqlc"

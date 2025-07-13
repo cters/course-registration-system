@@ -1,0 +1,5 @@
+/backend/auth-service/logs
+/backend/auth-service/.env
+/backend/auth-service/cmd/swag/docs
+/backend/auth-service/postgres
+/backend/.vscode
